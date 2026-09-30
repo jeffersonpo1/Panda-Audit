@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store Food Safety Audit</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Food Safety Audit">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#c8102e">
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAGKElEQVR4nO3dS1YjRxBG4R8dLwBvg4E8NDvqNbEjPLQGvQ2zAzzAwoIuVeUj8hGR9xvSQqo+XAWhkoQeNMDr4/l9xO2ir+e3y0Pv2+xygwQMqU/gzW6AiLGnVdymV0rEKGEZ98nqiogZpSzbqb5nEDIs1U7rqglNzLBW21TRvYGQ0UPJtM7+BsuYn14uVleFifz8cTa7rtyosy5cGzMBr6k28Jyoky9YEzMhQ6oLOzXqpAuVxkzI2FIadkrUhxcoiZmQkaIk7KOod0/bETNaKmnlqMnfio9mQ8kBWj4ixni5DTy9XEwbuDu+c6Zzzn+CgNfSqo17q8fmF1vETMhra9HJVtRVQaccJCHjlmUzW0H/8qDQ8plAYsZ3lk1stXo6usA9R/c0YsY9R23k7N3fm33Y+8eSGyRk5LBo6Xb1yH75KOeZ0UtJa59BW+zOTGfksmjmtt2sCc2qgRb22smd0ibvKSRm1LJq6CSlrRvszhglpb1rw9UTmukMKxYtJQXNdMZoqQ1WTWimM6zVNnXiHdyI4vXx/G72l5OAGRwGzf6MWaS0WDyh2Z/RSk1brBwIhaARCkEjFIJGKASNUAgaoRA0QiFohELQCIWgEQpBIxSCRigEjVAIGqEQNEIhaIRC0AiFoBEKQSMU00/BQhx//vP3L1/76/c/BhxJHoLGF1shf/+3mcNm5cCnvZhLLjcCQUNSfqSzRk3QKI5zxqgJenEzRlmDoBdmEfNsdwiCXtRsIVohaIRC0AuKOp0lgl5O5Jglgl5Ki5hne9aQoBcRfTJfEfQCWsU823SWCDq8lWKWCDq01WKWePkoMswc8hUTOijr6ewhZomgQ1rljMYWgg5mhXPNewg6kNVjlgg6DGL+QNABEPP/CNo5Yv6KoPGF55glgnZt1XPNewjaqZXPNe8haIfYm+8jaGeIeR9BO0LMxwjaCWJOQ9AOEHM6gl5Q1Jglgp4e55rzEPTEONecj6Anxd5cxu17Cr1+BkgKYi7nLmjvnwFyhJjruFo5InwGyB5irucm6CifAXIPMdtwEXSkzwDZQsx2XARdw0vUllaNWXIQdMTPAbk187F5NH3QVmYMh1XD3jJBS3NFTcxtLBW0NEfUxNzOckFLY6Mm5ramD7rVD2tE1MTc3vRBt9QzamLuw0XQLX9wM+zUJYh5m4ugJd9R8yL9ftwELfmM2utvAK9cBS35ipq9uT93QUs+oibmMVwGLc0dNTGP4zZoac6oiXks10FLc0VNzOO5D1qaK2pLxJwvRNDS+Kg51zyHMEFL46LmXPM8QgUt9Y+avXku4YKW+kVNzPMJGbTUPmpinlPYoCVfgXg61pmFDlryEYqHY/QifNDS3MHMfGweLRG0NGc4Mx6Td8sELRHQCpYKWpon6lmOI5rlgpbGxzT69iNbMmhpXFTE3NayQUv94yLm9pYOWuoXGTH3sXzQUvvYiLkfgv5Pq+iIuS+CvkF8/hH0N5ZRcwfpj6A3WIRIzGMQ9B0E6RNB7yiNmjvDOAR9IDdOYh6LoBOkRkrM47n78PpRrrFuvZeQkOdB0JmId26sHAiFoBEKQSMUgkYoBI1QCBqhEDRCIWiEQtAIhaARCkEjFIJGKMVBP71cLI8D+FTT1mHQP3+ci68csJTSIisHQjk9v10eRh8EYOH57fJQNaHZo2GttqmkoNmjMVpqg9U7NFMaVixaOkkfu8fRBZnSGCWlvWvDJmc5mNKoZdVQVtB79xSiRqm9dnI3g8+gLU7fETVyWTRz2272ysEujV5KWvsylV8fz++p33h0zyJ87LHs5+6Ezlk7jm6Q9QP3tIpZ2lg5LJ8KJ2p8Z9nEVqub8VquHlesIGtr0Uly0FKbqCXCXk2rNu5tErvrRU7UUtmvEwKPpUcDe2uxadASezPylAy0vaB3z0OXPEBk4iKVdczSwYS+KpnUEtMa20qHXsqATZ7ApVFLhI0PNb+9U7eFrJWiJmqJsFdVu4bmrL7ZO3Jt1LcIPCbLx1G5j+OKnhW0jBq4p+SkRNXT3ISNFmpeflH1jhX+BAKs1TZlFiTTGjWshqPZX05iWqOUZTvNImRiY0+rAdhlqhI3pD6/xYesCQS+hhFr6L9U/ItWPAMI8wAAAABJRU5ErkJggg==">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style>
+  :root {
+    --bg: #f6f5f2;
+    --panel: #ffffff;
+    --ink: #1c2321;
+    --ink-soft: #5b645f;
+    --line: #dcd9d1;
+    --accent: #c8102e;
+    --accent-soft: #fbe6e8;
+    --gold: #f2a900;
+    --pass: #2f7d4f;
+    --pass-bg: #e6f3e9;
+    --fail: #b0392a;
+    --fail-bg: #fbe9e6;
+    --na: #8a8378;
+    --na-bg: #efece5;
+    --critical: #a6321f;
+    --radius: 10px;
+    --font-body: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a;
+    --panel: #1c2224;
+    --ink: #eceae4;
+    --ink-soft: #a8ada8;
+    --line: #333b3a;
+    --accent: #ff6b70;
+    --accent-soft: #3a1f22;
+    --pass: #6fbf8f;
+    --pass-bg: #1f3128;
+    --fail: #e08370;
+    --fail-bg: #3a2320;
+    --na: #9a9a92;
+    --na-bg: #2a2b26;
+    --critical: #ef7a63;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a;
+      --panel: #1c2224;
+      --ink: #eceae4;
+      --ink-soft: #a8ada8;
+      --line: #333b3a;
+      --accent: #ff6b70;
+      --accent-soft: #3a1f22;
+      --pass: #6fbf8f;
+      --pass-bg: #1f3128;
+      --fail: #e08370;
+      --fail-bg: #3a2320;
+      --na: #9a9a92;
+      --na-bg: #2a2b26;
+      --critical: #ef7a63;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 3rem;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1rem 1rem 2rem;
+  }
+  .brand-bar {
+    background: var(--accent);
+    color: #fff;
+    padding: calc(0.9rem + env(safe-area-inset-top, 0px)) 1rem 1.1rem;
+    border-bottom: 3px solid var(--gold);
+  }
+  .brand-bar-inner { max-width: 720px; margin: 0 auto; }
+  .brand-kicker {
+    font-size: 0.72rem; color: var(--gold); font-weight: 700; letter-spacing: 0.06em;
+    margin-bottom: 0.3rem; text-transform: uppercase;
+  }
+  .brand-title {
+    font-family: var(--font-body); font-size: 1.5rem; font-weight: 700; line-height: 1.2;
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  .sub {
+    color: rgba(255,255,255,0.88);
+    font-size: 0.88rem;
+    margin: 0.35rem 0 0;
+    max-width: 46ch;
+  }
+
+  .meta-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin: 1.1rem 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .meta-card .field.full { grid-column: 1 / -1; }
+  .field label {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.3rem;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    padding: 0.3rem 0.1rem;
+  }
+  .field input:focus, .field textarea:focus {
+    outline: none;
+    border-bottom-color: var(--accent);
+  }
+
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 0.9rem 1rem;
+    margin-bottom: 1.1rem;
+    position: sticky;
+    top: 0.5rem;
+    z-index: 5;
+    backdrop-filter: blur(6px);
+  }
+  .score-ring {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+    border: 3px solid var(--line);
+  }
+  .score-text { flex: 1; min-width: 0; }
+  .score-text .big { font-size: 0.95rem; font-weight: 600; }
+  .score-text .small { font-size: 0.78rem; color: var(--ink-soft); }
+  .crit-flag {
+    font-size: 0.72rem;
+    color: var(--critical);
+    font-weight: 700;
+  }
+
+  .category {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 0.85rem;
+    overflow: hidden;
+  }
+  .category-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.9rem 1rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .category-head h2 {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  .category-head .count {
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    white-space: nowrap;
+    margin-left: 0.75rem;
+  }
+  .chev {
+    transition: transform 0.15s ease;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+    margin-left: 0.5rem;
+  }
+  .category.open .chev { transform: rotate(90deg); }
+  .category-body {
+    display: none;
+    border-top: 1px solid var(--line);
+  }
+  .category.open .category-body { display: block; }
+
+  .item {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .item:last-child { border-bottom: none; }
+  .item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .item-label {
+    font-size: 0.92rem;
+    line-height: 1.4;
+    flex: 1;
+  }
+  .item-label .crit-tag {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--critical);
+    border: 1px solid var(--critical);
+    border-radius: 4px;
+    padding: 0 0.3rem;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+  }
+  .toggle-group {
+    display: flex;
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+  .toggle-group button {
+    border: 1px solid var(--line);
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.35rem 0.55rem;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    font-family: var(--font-ui);
+  }
+  .toggle-group button.active[data-v="pass"] {
+    background: var(--pass-bg); color: var(--pass); border-color: var(--pass);
+  }
+  .toggle-group button.active[data-v="fail"] {
+    background: var(--fail-bg); color: var(--fail); border-color: var(--fail);
+  }
+  .toggle-group button.active[data-v="na"] {
+    background: var(--na-bg); color: var(--na); border-color: var(--na);
+  }
+  .note-label { margin-top: 0.6rem; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 0.25rem; }
+  .note-input {
+    width: 100%;
+    background: var(--accent-soft);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.85rem;
+    color: var(--ink);
+    font-family: var(--font-ui);
+  }
+  .note-input:focus { outline: none; border-color: var(--accent); }
+
+  .photo-row { margin-top: 0.55rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .photo-btn {
+    border: 1px dashed var(--line); background: transparent; color: var(--ink-soft); font-size: 0.74rem;
+    padding: 0.4rem 0.65rem; border-radius: 6px; cursor: pointer; font-family: var(--font-ui);
+    display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .photo-btn:active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .photo-thumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .photo-thumb {
+    position: relative; width: 54px; height: 54px; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--line); flex-shrink: 0;
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+  .photo-thumb .remove-photo {
+    position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: #fff; border: none;
+    font-size: 0.65rem; width: 18px; height: 18px; line-height: 18px; text-align: center; cursor: pointer;
+    padding: 0; border-bottom-left-radius: 6px;
+  }
+  .photo-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center;
+    justify-content: center; z-index: 50; padding: 1.2rem;
+  }
+  .photo-modal.show { display: flex; }
+  .photo-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+
+  .actions {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    flex: 1;
+    min-width: 130px;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    color: var(--ink);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: var(--font-ui);
+  }
+  .btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn.danger {
+    color: var(--fail);
+    border-color: var(--fail);
+  }
+
+  .history-panel {
+    margin-top: 1.5rem;
+  }
+  .history-panel h3 {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .history-item {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    gap: 0.5rem;
+  }
+  .history-item .meta-line { color: var(--ink-soft); font-size: 0.78rem; }
+  .history-item .load-btn {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.76rem;
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .empty-note {
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  ::selection { background: var(--accent-soft); }
+
+  @media (max-width: 420px) {
+    .meta-card { grid-template-columns: 1fr; }
+    .item-row { flex-direction: column; }
+    .toggle-group { align-self: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand-bar">
+  <div class="brand-bar-inner">
+    <div class="brand-kicker">Field Audit Tool</div>
+    <div class="brand-title">🐼 Store Food Safety Audit</div>
+    <p class="sub">Walk the line, mark each item, and get a score you can act on before the health inspector does.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="meta-card">
+    <div class="field">
+      <label for="storeName">Store</label>
+      <input id="storeName" type="text" placeholder="e.g. Store #4471 — Dublin">
+    </div>
+    <div class="field">
+      <label for="auditor">Auditor</label>
+      <input id="auditor" type="text" placeholder="Your name">
+    </div>
+    <div class="field">
+      <label for="auditDate">Date</label>
+      <input id="auditDate" type="date">
+    </div>
+    <div class="field">
+      <label for="shift">Shift / time</label>
+      <input id="shift" type="text" placeholder="e.g. Lunch rush, 12:15pm">
+    </div>
+  </div>
+
+  <div class="score-bar" id="scoreBar">
+    <div class="score-ring" id="scoreRing">--</div>
+    <div class="score-text">
+      <div class="big" id="scoreBig">No items scored yet</div>
+      <div class="small" id="scoreSmall">Mark items below to see your score</div>
+    </div>
+  </div>
+
+  <div id="categories"></div>
+
+  <div class="actions">
+    <button class="btn primary" id="saveBtn">Save this audit</button>
+    <button class="btn" id="printBtn">Print / export</button>
+    <button class="btn danger" id="resetBtn">Clear form</button>
+  </div>
+  <p class="sync-status" id="syncStatus" style="font-size:0.8rem;color:var(--ink-soft);margin-top:0.5rem;"></p>
+
+  <div class="history-panel" id="teamPanel">
+    <h3>Team submissions <button class="load-btn" id="refreshTeamBtn" style="margin-left:0.5rem;">Refresh</button></h3>
+    <div id="teamList"><p class="empty-note">Loading shared submissions…</p></div>
+  </div>
+
+  <div class="history-panel">
+    <h3>Past audits</h3>
+    <div id="historyList"></div>
+  </div>
+
+</div>
+
+<div class="photo-modal" id="photoModal">
+  <img id="photoModalImg" src="" alt="Photo preview">
+</div>
+
+<script>
+const CATEGORIES = [
+  {
+    name: "Personal Hygiene",
+    items: [
+      { t: "Handwashing sinks stocked (soap, hot water, paper towels) and unobstructed", c: true },
+      { t: "Staff wash hands at required points (start of shift, after trash/raw food/restroom)", c: true },
+      { t: "No bare-hand contact with ready-to-eat food (gloves, tongs, or deli paper used)", c: true },
+      { t: "Hair restraints worn by all food handlers" },
+      { t: "No visible jewelry other than a plain band on hands/wrists" },
+      { t: "Staff with cuts wear a proper bandage and glove" },
+      { t: "No sick or symptomatic employees on the line" , c: true },
+    ]
+  },
+  {
+    name: "Time & Temperature Control",
+    items: [
+      { t: "Cold-holding food at or below 41°F", c: true },
+      { t: "Hot-holding food at or above 135°F", c: true },
+      { t: "Walk-in cooler and freezer thermometers present and accurate" },
+      { t: "Cooked food cooled from 135°F to 70°F within 2 hours, then to 41°F within 4 more", c: true },
+      { t: "Reheated food reaches 165°F within 2 hours" },
+      { t: "Time-as-a-control items labeled with discard time where used" },
+      { t: "Thermometers calibrated and available at each station" },
+    ]
+  },
+  {
+    name: "Cross-Contamination & Storage",
+    items: [
+      { t: "Raw proteins stored below and separate from ready-to-eat/cooked items", c: true },
+      { t: "Color-coded or separate cutting boards used by food type" },
+      { t: "All stored food covered, labeled, and dated" },
+      { t: "FIFO (first-in, first-out) rotation followed in walk-in and dry storage" },
+      { t: "Chemicals stored away from and below food/food-contact surfaces", c: true },
+      { t: "Food stored at least 6 inches off the floor" },
+      { t: "No expired product in coolers, freezers, or dry storage" },
+    ]
+  },
+  {
+    name: "Cleaning & Sanitizing",
+    items: [
+      { t: "Sanitizer buckets/bottles at correct concentration (test strips used)", c: true },
+      { t: "Food-contact surfaces cleaned and sanitized on the required schedule" },
+      { t: "Wiping cloths stored in sanitizer solution between uses" },
+      { t: "Dish machine reaching required wash/rinse/sanitize temps or chemical levels" },
+      { t: "Floors, walls, and drains free of grease buildup and standing water" },
+      { t: "Trash areas and dumpster corrals clean and lids closed" },
+    ]
+  },
+  {
+    name: "Pest Management",
+    items: [
+      { t: "No live pests or fresh droppings observed", c: true },
+      { t: "Door sweeps, screens, and air curtains intact" },
+      { t: "Pest control service records current and accessible" },
+      { t: "No gaps around pipe or conduit penetrations into the building" },
+    ]
+  },
+  {
+    name: "Facility & Equipment",
+    items: [
+      { t: "Hood and exhaust system clean, no visible grease dripping" },
+      { t: "Equipment (slicers, mixers, wok stations) clean and in good repair" },
+      { t: "Lighting adequate and fixtures shielded in food prep/storage areas" },
+      { t: "Backflow prevention devices present at hose bibs and equipment connections" },
+      { t: "First aid kit stocked and accessible" },
+    ]
+  },
+  {
+    name: "Documentation & Compliance",
+    items: [
+      { t: "Current health permit posted" },
+      { t: "Food handler / manager certifications current for on-duty staff", c: true },
+      { t: "Temperature logs completed and up to date" },
+      { t: "Employee illness policy posted and understood by staff" },
+      { t: "Allergen information available and staff can speak to major allergens" },
+    ]
+  },
+];
+
+const STORAGE_KEY = "fsa_current_draft";
+const HISTORY_KEY = "fsa_audit_history";
+
+function itemId(ci, ii) { return `c${ci}_i${ii}`; }
+
+function buildCategories() {
+  const container = document.getElementById("categories");
+  container.innerHTML = "";
+  CATEGORIES.forEach((cat, ci) => {
+    const catEl = document.createElement("div");
+    catEl.className = "category" + (ci === 0 ? " open" : "");
+    catEl.dataset.ci = ci;
+
+    const head = document.createElement("div");
+    head.className = "category-head";
+    head.innerHTML = `
+      <h2>${cat.name}</h2>
+      <div style="display:flex; align-items:center;">
+        <span class="count" data-count="${ci}">0/${cat.items.length} marked</span>
+        <span class="chev">&#8250;</span>
+      </div>
+    `;
+    head.addEventListener("click", () => {
+      catEl.classList.toggle("open");
+    });
+
+    const body = document.createElement("div");
+    body.className = "category-body";
+
+    cat.items.forEach((item, ii) => {
+      const id = itemId(ci, ii);
+      const itemEl = document.createElement("div");
+      itemEl.className = "item";
+      itemEl.innerHTML = `
+        <div class="item-row">
+          <div class="item-label">${item.t}${item.c ? '<span class="crit-tag">CRITICAL</span>' : ''}</div>
+          <div class="toggle-group" data-id="${id}">
+            <button data-v="pass" type="button">PASS</button>
+            <button data-v="fail" type="button">FAIL</button>
+            <button data-v="na" type="button">N/A</button>
+          </div>
+        </div>
+        <div class="note-label">Comment</div>
+        <textarea class="note-input" data-note="${id}" rows="2" placeholder="Note (what you saw, corrective action, who was told)..."></textarea>
+        <div class="photo-row">
+          <button class="photo-btn" type="button" data-photo-btn="${id}">📷 Add photo</button>
+          <input type="file" accept="image/*" capture="environment" style="display:none" data-photo-input="${id}">
+          <div class="photo-thumbs" data-photo-thumbs="${id}"></div>
+        </div>
+      `;
+      body.appendChild(itemEl);
+    });
+
+    catEl.appendChild(head);
+    catEl.appendChild(body);
+    container.appendChild(catEl);
+  });
+
+  // wire up toggle buttons
+  container.querySelectorAll(".toggle-group").forEach(group => {
+    group.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = group.dataset.id;
+        const v = btn.dataset.v;
+        const current = state.items[id];
+        if (current && current.v === v) {
+          // toggle off
+          delete state.items[id];
+        } else {
+          state.items[id] = { v, note: (current && current.note) || "" };
+        }
+        renderState();
+        persistDraft();
+      });
+    });
+  });
+
+  container.querySelectorAll(".note-input").forEach(ta => {
+    ta.addEventListener("input", () => {
+      const id = ta.dataset.note;
+      if (!state.items[id]) state.items[id] = { v: null, note: "" };
+      state.items[id].note = ta.value;
+      persistDraft();
+    });
+  });
+
+  wirePhotoControls(container);
+}
+
+function resizeImageFile(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("read failed"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("decode failed"));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) { height = Math.round(height * (maxDim / width)); width = maxDim; }
+        else if (height > maxDim) { width = Math.round(width * (maxDim / height)); height = maxDim; }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function wirePhotoControls(scope) {
+  scope.querySelectorAll("[data-photo-btn]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.photoBtn;
+      scope.querySelector(`[data-photo-input="${id}"]`).click();
+    });
+  });
+  scope.querySelectorAll("[data-photo-input]").forEach(input => {
+    input.addEventListener("change", async (e) => {
+      const id = input.dataset.photoInput;
+      const file = e.target.files[0];
+      if (!file) return;
+      const btn = scope.querySelector(`[data-photo-btn="${id}"]`);
+      const original = btn.textContent;
+      btn.textContent = "Processing...";
+      try {
+        const dataUrl = await resizeImageFile(file, 900, 0.6);
+        if (!state.items[id]) state.items[id] = { v: null, note: "", photos: [] };
+        if (!state.items[id].photos) state.items[id].photos = [];
+        state.items[id].photos.push(dataUrl);
+        persistDraft();
+        renderPhotos(id);
+      } catch (err) {
+        alert("Couldn't process that photo. Try again.");
+      }
+      btn.textContent = original;
+      input.value = "";
+    });
+  });
+}
+
+function renderPhotos(id) {
+  const container = document.querySelector(`[data-photo-thumbs="${id}"]`);
+  if (!container) return;
+  const photos = (state.items[id] && state.items[id].photos) || [];
+  container.innerHTML = photos.map((p, i) => `
+    <div class="photo-thumb">
+      <img src="${p}" data-view="1">
+      <button class="remove-photo" data-remove="${id}::${i}" type="button">×</button>
+    </div>
+  `).join("");
+  container.querySelectorAll("img").forEach(img => {
+    img.addEventListener("click", () => {
+      document.getElementById("photoModalImg").src = img.src;
+      document.getElementById("photoModal").classList.add("show");
+    });
+  });
+  container.querySelectorAll("[data-remove]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const [pid, idx] = btn.dataset.remove.split("::");
+      state.items[pid].photos.splice(parseInt(idx, 10), 1);
+      persistDraft();
+      renderPhotos(pid);
+    });
+  });
+}
+
+function renderAllPhotos() {
+  CATEGORIES.forEach((cat, ci) => cat.items.forEach((_, ii) => renderPhotos(itemId(ci, ii))));
+}
+
+let state = { meta: {}, items: {} };
+
+function renderState() {
+  // buttons
+  document.querySelectorAll(".toggle-group").forEach(group => {
+    const id = group.dataset.id;
+    const entry = state.items[id];
+    group.querySelectorAll("button").forEach(btn => {
+      btn.classList.toggle("active", entry && entry.v === btn.dataset.v);
+    });
+  });
+  // notes visibility + value
+  document.querySelectorAll(".note-input").forEach(ta => {
+    const id = ta.dataset.note;
+    const entry = state.items[id];
+    if (entry && ta.value !== entry.note) ta.value = entry.note || "";
+  });
+  // counts per category
+  CATEGORIES.forEach((cat, ci) => {
+    let marked = 0;
+    cat.items.forEach((_, ii) => {
+      if (state.items[itemId(ci, ii)] && state.items[itemId(ci, ii)].v) marked++;
+    });
+    const countEl = document.querySelector(`[data-count="${ci}"]`);
+    if (countEl) countEl.textContent = `${marked}/${cat.items.length} marked`;
+  });
+  updateScore();
+}
+
+function updateScore() {
+  let pass = 0, fail = 0, na = 0, criticalFails = 0, total = 0;
+  CATEGORIES.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      const entry = state.items[itemId(ci, ii)];
+      if (!entry || !entry.v) return;
+      total++;
+      if (entry.v === "pass") pass++;
+      else if (entry.v === "fail") { fail++; if (item.c) criticalFails++; }
+      else na++;
+    });
+  });
+  const scoreRing = document.getElementById("scoreRing");
+  const scoreBig = document.getElementById("scoreBig");
+  const scoreSmall = document.getElementById("scoreSmall");
+  const scoreBar = document.getElementById("scoreBar");
+
+  const applicable = pass + fail;
+  if (applicable === 0) {
+    scoreRing.textContent = "--";
+    scoreRing.style.borderColor = "var(--line)";
+    scoreRing.style.color = "var(--ink-soft)";
+    scoreBig.textContent = "No items scored yet";
+    scoreSmall.textContent = "Mark items below to see your score";
+    return;
+  }
+  const pct = Math.round((pass / applicable) * 100);
+  scoreRing.textContent = pct + "%";
+  let ringColor = "var(--pass)";
+  if (pct < 70 || criticalFails > 0) ringColor = "var(--fail)";
+  else if (pct < 90) ringColor = "#c98a2e";
+  scoreRing.style.borderColor = ringColor;
+  scoreRing.style.color = ringColor;
+
+  scoreBig.textContent = `${pass} pass / ${fail} fail` + (na ? ` / ${na} N/A` : "") + ` — ${total} of ${CATEGORIES.reduce((s,c)=>s+c.items.length,0)} items marked`;
+  if (criticalFails > 0) {
+    scoreSmall.innerHTML = `<span class="crit-flag">${criticalFails} critical violation${criticalFails > 1 ? 's' : ''} — needs immediate correction</span>`;
+  } else if (fail > 0) {
+    scoreSmall.textContent = `${fail} item${fail > 1 ? 's' : ''} need attention before your next visit`;
+  } else {
+    scoreSmall.textContent = "Clean pass so far — keep going";
+  }
+}
+
+function persistDraft() {
+  state.meta = {
+    storeName: document.getElementById("storeName").value,
+    auditor: document.getElementById("auditor").value,
+    auditDate: document.getElementById("auditDate").value,
+    shift: document.getElementById("shift").value,
+  };
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) { /* storage unavailable, continue silently */ }
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state = parsed && parsed.items ? parsed : { meta: {}, items: {} };
+    }
+  } catch (e) { state = { meta: {}, items: {} }; }
+  document.getElementById("storeName").value = state.meta.storeName || "";
+  document.getElementById("auditor").value = state.meta.auditor || "";
+  document.getElementById("auditDate").value = state.meta.auditDate || new Date().toISOString().slice(0,10);
+  document.getElementById("shift").value = state.meta.shift || "";
+}
+
+function getHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+function renderHistory() {
+  const list = document.getElementById("historyList");
+  const history = getHistory();
+  if (history.length === 0) {
+    list.innerHTML = '<p class="empty-note">Saved audits will show up here.</p>';
+    return;
+  }
+  list.innerHTML = "";
+  history.slice().reverse().forEach((h, idx) => {
+    const realIdx = history.length - 1 - idx;
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.innerHTML = `
+      <div>
+        <div><strong>${h.meta.storeName || "Unnamed store"}</strong> — ${h.score}%</div>
+        <div class="meta-line">${h.meta.auditDate || ""} · ${h.meta.auditor || "no auditor listed"}${h.criticalFails ? ` · ${h.criticalFails} critical` : ""}</div>
+      </div>
+      <button class="load-btn" data-idx="${realIdx}">Load</button>
+    `;
+    list.appendChild(div);
+  });
+  list.querySelectorAll(".load-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const h = getHistory()[parseInt(btn.dataset.idx, 10)];
+      if (!h) return;
+      state = { meta: h.meta, items: h.items };
+      document.getElementById("storeName").value = state.meta.storeName || "";
+      document.getElementById("auditor").value = state.meta.auditor || "";
+      document.getElementById("auditDate").value = state.meta.auditDate || "";
+      document.getElementById("shift").value = state.meta.shift || "";
+      renderState();
+      renderAllPhotos();
+      persistDraft();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+}
+
+document.getElementById("saveBtn").addEventListener("click", () => {
+  persistDraft();
+  let pass = 0, fail = 0, criticalFails = 0;
+  CATEGORIES.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      const entry = state.items[itemId(ci, ii)];
+      if (!entry || !entry.v) return;
+      if (entry.v === "pass") pass++;
+      else if (entry.v === "fail") { fail++; if (item.c) criticalFails++; }
+    });
+  });
+  const applicable = pass + fail;
+  const score = applicable ? Math.round((pass / applicable) * 100) : 0;
+  const history = getHistory();
+  history.push({
+    savedAt: new Date().toISOString(),
+    meta: { ...state.meta },
+    items: JSON.parse(JSON.stringify(state.items)),
+    score, criticalFails,
+  });
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+  } catch (e) { /* ignore */ }
+  renderHistory();
+  const btn = document.getElementById("saveBtn");
+  const original = btn.textContent;
+  btn.textContent = "Saved ✓";
+  setTimeout(() => { btn.textContent = original; }, 1400);
+
+  submitToTeamLog(history[history.length - 1]);
+});
+
+// ---- Shared team log (GitHub via Cloudflare Worker) ----
+// Replace with your deployed worker URL, e.g. "https://panda-audit-sync.yourname.workers.dev"
+const WORKER_URL = "https://panda-audit-sync.YOUR-SUBDOMAIN.workers.dev";
+
+async function submitToTeamLog(auditRecord) {
+  const statusEl = document.getElementById("syncStatus");
+  if (!WORKER_URL || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+    statusEl.textContent = "Saved on this device only — shared log isn't configured yet.";
+    return;
+  }
+  statusEl.textContent = "Submitting to team log...";
+  try {
+    const res = await fetch(WORKER_URL + "/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(auditRecord),
+    });
+    if (!res.ok) throw new Error("bad response");
+    statusEl.textContent = "✓ Submitted to team log";
+    loadTeamList();
+  } catch (err) {
+    statusEl.textContent = "Saved on this device — couldn't reach the team log (check connection).";
+  }
+}
+
+async function loadTeamList() {
+  const listEl = document.getElementById("teamList");
+  if (!WORKER_URL || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+    listEl.innerHTML = '<p class="empty-note">Shared log isn\'t configured yet — set WORKER_URL in this file.</p>';
+    return;
+  }
+  try {
+    const res = await fetch(WORKER_URL + "/list");
+    const data = await res.json();
+    if (!data.ok || !data.audits.length) {
+      listEl.innerHTML = '<p class="empty-note">No team submissions yet.</p>';
+      return;
+    }
+    const sorted = data.audits.sort((a, b) => (b.savedAt || "").localeCompare(a.savedAt || ""));
+    listEl.innerHTML = sorted.map(h => `
+      <div class="history-item">
+        <div>
+          <div><strong>${h.meta.storeName || "Unnamed store"}</strong> — ${h.score}%</div>
+          <div class="meta-line">${h.meta.auditDate || ""} · ${h.meta.auditor || "no auditor listed"}</div>
+        </div>
+      </div>
+    `).join("");
+  } catch (err) {
+    listEl.innerHTML = '<p class="empty-note">Couldn\'t load team submissions right now.</p>';
+  }
+}
+document.getElementById("refreshTeamBtn").addEventListener("click", loadTeamList);
+loadTeamList();
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Clear all marks on this audit? This can't be undone unless you already saved it.")) return;
+  state = { meta: state.meta, items: {} };
+  document.querySelectorAll(".note-input").forEach(ta => { ta.value = ""; });
+  renderState();
+  renderAllPhotos();
+  persistDraft();
+});
+
+document.getElementById("printBtn").addEventListener("click", () => {
+  window.print();
+});
+document.getElementById("photoModal").addEventListener("click", () => {
+  document.getElementById("photoModal").classList.remove("show");
+});
+
+buildCategories();
+loadDraft();
+renderState();
+renderHistory();
+renderAllPhotos();
+</script>
+</body>
+</html>

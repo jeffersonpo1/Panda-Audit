@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOH Opening Procedure Audit</title>
+<style>
+  :root {
+    --bg: #f6f5f2;
+    --panel: #ffffff;
+    --ink: #1c2321;
+    --ink-soft: #5b645f;
+    --line: #dcd9d1;
+    --accent: #c8102e;
+    --accent-soft: #fbe6e8;
+    --gold: #f2a900;
+    --pass: #2f7d4f;
+    --pass-bg: #e6f3e9;
+    --fail: #b0392a;
+    --fail-bg: #fbe9e6;
+    --na: #8a8378;
+    --na-bg: #efece5;
+    --critical: #c8102e;
+    --radius: 10px;
+    --font-body: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a;
+    --panel: #1c2224;
+    --ink: #eceae4;
+    --ink-soft: #a8ada8;
+    --line: #333b3a;
+    --accent: #ff6b70;
+    --accent-soft: #3a1f22;
+    --pass: #6fbf8f;
+    --pass-bg: #1f3128;
+    --fail: #e08370;
+    --fail-bg: #3a2320;
+    --na: #9a9a92;
+    --na-bg: #2a2b26;
+    --critical: #ef7a63;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a;
+      --panel: #1c2224;
+      --ink: #eceae4;
+      --ink-soft: #a8ada8;
+      --line: #333b3a;
+      --accent: #ff6b70;
+      --accent-soft: #3a1f22;
+      --pass: #6fbf8f;
+      --pass-bg: #1f3128;
+      --fail: #e08370;
+      --fail-bg: #3a2320;
+      --na: #9a9a92;
+      --na-bg: #2a2b26;
+      --critical: #ef7a63;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 3rem;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 2rem; }
+  .brand-bar {
+    background: var(--accent); color: #fff;
+    padding: calc(0.9rem + env(safe-area-inset-top, 0px)) 1rem 1.1rem;
+    border-bottom: 3px solid var(--gold);
+  }
+  .brand-bar-inner { max-width: 720px; margin: 0 auto; }
+  .brand-kicker {
+    font-size: 0.72rem; color: var(--gold); font-weight: 700; letter-spacing: 0.06em;
+    margin-bottom: 0.3rem; text-transform: uppercase;
+  }
+  .brand-title {
+    font-family: var(--font-body); font-size: 1.45rem; font-weight: 700; line-height: 1.2;
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  .sub { color: rgba(255,255,255,0.88); font-size: 0.86rem; margin: 0.35rem 0 0; max-width: 48ch; }
+
+  .meta-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1rem; margin: 1.1rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
+  }
+  .meta-card .field.full { grid-column: 1 / -1; }
+  .field label { display: block; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 0.3rem; }
+  .field input, .field select {
+    width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line);
+    color: var(--ink); font-family: var(--font-ui); font-size: 0.95rem; padding: 0.3rem 0.1rem;
+  }
+  .field input:focus, .field select:focus { outline: none; border-bottom-color: var(--accent); }
+
+  .timer-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 0.9rem 1rem; margin-bottom: 1.1rem; display: flex; align-items: center; gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .timer-display { font-family: var(--font-body); font-size: 1.4rem; font-weight: 600; min-width: 80px; }
+  .timer-target { font-size: 0.78rem; color: var(--ink-soft); flex: 1; min-width: 140px; }
+  .timer-btn {
+    border: 1px solid var(--accent); color: var(--accent); background: transparent;
+    padding: 0.45rem 0.9rem; border-radius: 7px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  }
+  .timer-btn.active { background: var(--accent); color: #fff; }
+  .timer-over .timer-display { color: var(--fail); }
+
+  .score-bar {
+    display: flex; align-items: center; gap: 1rem; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 0.9rem 1rem; margin-bottom: 1.1rem;
+    position: sticky; top: 0.5rem; z-index: 5; backdrop-filter: blur(6px);
+  }
+  .score-ring {
+    width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.95rem; flex-shrink: 0; border: 3px solid var(--line);
+  }
+  .score-text { flex: 1; min-width: 0; }
+  .score-text .big { font-size: 0.95rem; font-weight: 600; }
+  .score-text .small { font-size: 0.78rem; color: var(--ink-soft); }
+  .crit-flag { font-size: 0.72rem; color: var(--critical); font-weight: 700; }
+
+  .category {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    margin-bottom: 0.85rem; overflow: hidden;
+  }
+  .category-head {
+    display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1rem; cursor: pointer;
+    user-select: none;
+  }
+  .category-head h2 { font-family: var(--font-body); font-size: 1.02rem; font-weight: 600; margin: 0; }
+  .category-head .count { font-size: 0.78rem; color: var(--ink-soft); white-space: nowrap; margin-left: 0.75rem; }
+  .chev { transition: transform 0.15s ease; color: var(--ink-soft); flex-shrink: 0; margin-left: 0.5rem; }
+  .category.open .chev { transform: rotate(90deg); }
+  .category-body { display: none; border-top: 1px solid var(--line); }
+  .category.open .category-body { display: block; }
+
+  .item { padding: 0.85rem 1rem; border-bottom: 1px solid var(--line); }
+  .item:last-child { border-bottom: none; }
+  .item-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+  .item-label { font-size: 0.9rem; line-height: 1.4; flex: 1; }
+  .item-label .step-no { color: var(--ink-soft); font-weight: 600; margin-right: 0.15rem; }
+  .item-label .crit-tag {
+    display: inline-block; font-size: 0.65rem; font-weight: 700; color: var(--critical);
+    border: 1px solid var(--critical); border-radius: 4px; padding: 0 0.3rem; margin-left: 0.4rem;
+    vertical-align: middle; letter-spacing: 0.02em;
+  }
+  .toggle-group { display: flex; gap: 0.3rem; flex-shrink: 0; }
+  .toggle-group button {
+    border: 1px solid var(--line); background: transparent; color: var(--ink-soft); font-size: 0.72rem;
+    font-weight: 700; padding: 0.35rem 0.55rem; border-radius: 6px; cursor: pointer; letter-spacing: 0.02em;
+    font-family: var(--font-ui);
+  }
+  .toggle-group button.active[data-v="pass"] { background: var(--pass-bg); color: var(--pass); border-color: var(--pass); }
+  .toggle-group button.active[data-v="fail"] { background: var(--fail-bg); color: var(--fail); border-color: var(--fail); }
+  .toggle-group button.active[data-v="na"] { background: var(--na-bg); color: var(--na); border-color: var(--na); }
+  .note-label { margin-top: 0.6rem; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 0.25rem; }
+  .note-input {
+    width: 100%; background: var(--accent-soft); border: 1px solid transparent;
+    border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.85rem; color: var(--ink);
+    font-family: var(--font-ui);
+  }
+  .note-input:focus { outline: none; border-color: var(--accent); }
+
+  .photo-row { margin-top: 0.55rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .photo-btn {
+    border: 1px dashed var(--line); background: transparent; color: var(--ink-soft); font-size: 0.74rem;
+    padding: 0.4rem 0.65rem; border-radius: 6px; cursor: pointer; font-family: var(--font-ui);
+    display: inline-flex; align-items: center; gap: 0.3rem;
+  }
+  .photo-btn:active { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+  .photo-thumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .photo-thumb {
+    position: relative; width: 54px; height: 54px; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--line); flex-shrink: 0;
+  }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+  .photo-thumb .remove-photo {
+    position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: #fff; border: none;
+    font-size: 0.65rem; width: 18px; height: 18px; line-height: 18px; text-align: center; cursor: pointer;
+    padding: 0; border-bottom-left-radius: 6px;
+  }
+  .photo-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center;
+    justify-content: center; z-index: 50; padding: 1.2rem;
+  }
+  .photo-modal.show { display: flex; }
+  .photo-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+
+  .actions { display: flex; gap: 0.6rem; margin-top: 1.4rem; flex-wrap: wrap; }
+  .btn {
+    flex: 1; min-width: 130px; text-align: center; padding: 0.75rem 1rem; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink); font-size: 0.88rem;
+    font-weight: 600; cursor: pointer; font-family: var(--font-ui);
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.danger { color: var(--fail); border-color: var(--fail); }
+
+  .history-panel { margin-top: 1.5rem; }
+  .history-panel h3 { font-family: var(--font-body); font-size: 1rem; margin-bottom: 0.6rem; }
+  .history-item {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.9rem;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;
+    font-size: 0.85rem; gap: 0.5rem;
+  }
+  .history-item .meta-line { color: var(--ink-soft); font-size: 0.78rem; }
+  .history-item .load-btn {
+    background: none; border: 1px solid var(--line); border-radius: 6px; padding: 0.3rem 0.6rem;
+    font-size: 0.76rem; cursor: pointer; color: var(--accent); font-weight: 600;
+  }
+  .empty-note { color: var(--ink-soft); font-size: 0.85rem; font-style: italic; }
+
+  @media (max-width: 420px) {
+    .meta-card { grid-template-columns: 1fr; }
+    .item-row { flex-direction: column; }
+    .toggle-group { align-self: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand-bar">
+  <div class="brand-bar-inner">
+    <div class="brand-kicker">Field Audit Tool</div>
+    <div class="brand-title">🐼 BOH Opening Procedure Audit</div>
+    <p class="sub">Walk the opening sequence step by step and confirm it was run to standard, start to open.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="meta-card">
+    <div class="field">
+      <label for="storeName">Store</label>
+      <input id="storeName" type="text" placeholder="e.g. Store #4471 — Dublin">
+    </div>
+    <div class="field">
+      <label for="auditor">Auditor</label>
+      <input id="auditor" type="text" placeholder="Your name">
+    </div>
+    <div class="field">
+      <label for="auditDate">Date</label>
+      <input id="auditDate" type="date">
+    </div>
+    <div class="field">
+      <label for="venue">Venue type</label>
+      <select id="venue">
+        <option value="endcap">End Cap</option>
+        <option value="drivethru">Drive Thru</option>
+        <option value="mall">Mall / Casino</option>
+        <option value="sis">Store in Store</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="timer-card" id="timerCard">
+    <div class="timer-display" id="timerDisplay">00:00</div>
+    <div class="timer-target">Labor allowance target: <strong>30 min</strong> for this venue type</div>
+    <button class="timer-btn" id="timerBtn">Start</button>
+  </div>
+
+  <div class="score-bar" id="scoreBar">
+    <div class="score-ring" id="scoreRing">--</div>
+    <div class="score-text">
+      <div class="big" id="scoreBig">No steps checked yet</div>
+      <div class="small" id="scoreSmall">Mark each step below as it's confirmed</div>
+    </div>
+  </div>
+
+  <div id="categories"></div>
+
+  <div class="actions">
+    <button class="btn primary" id="saveBtn">Save this audit</button>
+    <button class="btn" id="printBtn">Print / export</button>
+    <button class="btn danger" id="resetBtn">Clear form</button>
+  </div>
+
+  <p class="sync-status" id="syncStatus" style="font-size:0.8rem;color:var(--ink-soft);margin-top:0.5rem;"></p>
+
+  <div class="history-panel">
+    <h3>Past audits</h3>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="history-panel" id="teamPanel">
+    <h3>Team submissions <button class="load-btn" id="refreshTeamBtn" style="margin-left:0.5rem;">Refresh</button></h3>
+    <div id="teamList"><p class="empty-note">Loading shared submissions…</p></div>
+  </div>
+
+</div>
+
+<div class="photo-modal" id="photoModal">
+  <img id="photoModalImg" src="" alt="Photo preview">
+</div>
+
+<script>
+const CATEGORIES = [
+  {
+    name: "Pre-Opening & Line Start",
+    items: [
+      { t: "Associate is in full uniform and clocked in before starting any opening procedure", c: true },
+      { t: "Hands washed before beginning opening procedures" },
+      { t: "Alarm disarmed correctly (if first associate to arrive)" },
+      { t: "Exhaust fans and kitchen lights turned on" },
+      { t: "Hood filters confirmed in place before any cooking begins", c: true },
+    ]
+  },
+  {
+    name: "Grill & Fryer Startup",
+    items: [
+      { t: "Teriyaki Grill and ALL fryers turned on" },
+      { t: "Teriyaki Grill seasoned and set to correct temperature" },
+      { t: "Surface thermometer used to check grill temperature" },
+      { t: "Manager notified if grill is out of range (associates do not self-calibrate)", c: true },
+      { t: "Flat Top Grill set to 400°F (±5°) or most current spec", c: true },
+      { t: "Clamshell Grill set to 375°F and Clam set to 405°F (±5°) or most current spec", c: true },
+    ]
+  },
+  {
+    name: "Blancher, Range & Holding Units",
+    items: [
+      { t: "Blancher pilot lit and water filled to the ring line on the basket" },
+      { t: "Blancher water brought to a boil" },
+      { t: "Cooking range pilots lit with a long-reach lighter" },
+      { t: "No rolled paper or paper towel used to light pilots", c: true },
+      { t: "Cooling units confirmed functioning properly", c: true },
+      { t: "Hot-holding units confirmed functioning properly", c: true },
+      { t: "Quick inventory check done — thawed proteins and prepped vegetables sufficient for peak" },
+    ]
+  },
+  {
+    name: "Sink #3 & Sauce Cart Setup",
+    items: [
+      { t: "Sink #3 filled with cold water and sanitizer solution" },
+      { t: "Sanitizer solution measured at 65–85°F and 200–400ppm (per approved chemical instructions)", c: true },
+      { t: "Sauce cart taken out of walk-in cooler" },
+      { t: "Measuring spoons and spoodles placed correctly on sauce cart (e.g. 1.5 tsp ginger garlic, 1 tsp crushed chili)" },
+      { t: "White rice or basic sauce rice cooked per store needs" },
+    ]
+  },
+  {
+    name: "Entrée & Side Cook-Up",
+    items: [
+      { t: "R1, R2, M1, LTOs, C1, C3, C4, B1, F4 cooked to required opening batch" },
+      { t: "Batch size matches sales-by-30-min report (< $75 → batch #1/2, > $75 → batch #1)" },
+      { t: "Fried dishes and appetizers cooked no more than 15 minutes before opening (freshness window)", c: true },
+      { t: "Remaining entrées cooked to batch #1/2 for cook-to-request" },
+      { t: "Steam table / induction table filled prior to lunch rush" },
+      { t: "No associate operating two woks at once (starch wok and entrée wok run separately)", c: true },
+    ]
+  },
+  {
+    name: "Opening Standards & Compliance",
+    items: [
+      { t: "\"Don't See Your Entrée\" sign posted", c: true },
+      { t: "Minimum of batch #1 or #1/2 on hand for required sides (R1, R2, M1)" },
+      { t: "Minimum of batch #1 or #1/2 on hand for required entrées (LTOs, C1, C3, C4, B1, F4)" },
+      { t: "2 orders each of E2 and E3 apps cooked and available" },
+      { t: "Unavailable items can be cooked to order on request" },
+      { t: "BOH is clean and fully stocked" },
+      { t: "Display cooler organized" },
+      { t: "All doors unlocked and store opened on time" },
+    ]
+  },
+];
+
+const VENUE_LABELS = {
+  endcap: "End Cap",
+  drivethru: "Drive Thru",
+  mall: "Mall / Casino",
+  sis: "Store in Store",
+};
+const TARGET_SECONDS = 30 * 60; // 30 minutes for every venue type per current standard
+
+const STORAGE_KEY = "boh_audit_draft";
+const HISTORY_KEY = "boh_audit_history";
+
+function itemId(ci, ii) { return `c${ci}_i${ii}`; }
+
+function buildCategories() {
+  const container = document.getElementById("categories");
+  container.innerHTML = "";
+  CATEGORIES.forEach((cat, ci) => {
+    const catEl = document.createElement("div");
+    catEl.className = "category" + (ci === 0 ? " open" : "");
+    catEl.dataset.ci = ci;
+
+    const head = document.createElement("div");
+    head.className = "category-head";
+    head.innerHTML = `
+      <h2>${cat.name}</h2>
+      <div style="display:flex; align-items:center;">
+        <span class="count" data-count="${ci}">0/${cat.items.length} checked</span>
+        <span class="chev">&#8250;</span>
+      </div>
+    `;
+    head.addEventListener("click", () => catEl.classList.toggle("open"));
+
+    const body = document.createElement("div");
+    body.className = "category-body";
+
+    cat.items.forEach((item, ii) => {
+      const id = itemId(ci, ii);
+      const itemEl = document.createElement("div");
+      itemEl.className = "item";
+      itemEl.innerHTML = `
+        <div class="item-row">
+          <div class="item-label"><span class="step-no">${ii + 1}.</span>${item.t}${item.c ? '<span class="crit-tag">CRITICAL</span>' : ''}</div>
+          <div class="toggle-group" data-id="${id}">
+            <button data-v="pass" type="button">DONE</button>
+            <button data-v="fail" type="button">MISSED</button>
+            <button data-v="na" type="button">N/A</button>
+          </div>
+        </div>
+        <div class="note-label">Comment</div>
+        <textarea class="note-input" data-note="${id}" rows="2" placeholder="Note (what happened, corrective action, who was told)..."></textarea>
+        <div class="photo-row">
+          <button class="photo-btn" type="button" data-photo-btn="${id}">📷 Add photo</button>
+          <input type="file" accept="image/*" capture="environment" style="display:none" data-photo-input="${id}">
+          <div class="photo-thumbs" data-photo-thumbs="${id}"></div>
+        </div>
+      `;
+      body.appendChild(itemEl);
+    });
+
+    catEl.appendChild(head);
+    catEl.appendChild(body);
+    container.appendChild(catEl);
+  });
+
+  container.querySelectorAll(".toggle-group").forEach(group => {
+    group.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = group.dataset.id;
+        const v = btn.dataset.v;
+        const current = state.items[id];
+        if (current && current.v === v) {
+          delete state.items[id];
+        } else {
+          state.items[id] = { v, note: (current && current.note) || "" };
+        }
+        renderState();
+        persistDraft();
+      });
+    });
+  });
+
+  container.querySelectorAll(".note-input").forEach(ta => {
+    ta.addEventListener("input", () => {
+      const id = ta.dataset.note;
+      if (!state.items[id]) state.items[id] = { v: null, note: "" };
+      state.items[id].note = ta.value;
+      persistDraft();
+    });
+  });
+
+  wirePhotoControls(container);
+}
+
+function resizeImageFile(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("read failed"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("decode failed"));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) { height = Math.round(height * (maxDim / width)); width = maxDim; }
+        else if (height > maxDim) { width = Math.round(width * (maxDim / height)); height = maxDim; }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function wirePhotoControls(scope) {
+  scope.querySelectorAll("[data-photo-btn]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.photoBtn;
+      scope.querySelector(`[data-photo-input="${id}"]`).click();
+    });
+  });
+  scope.querySelectorAll("[data-photo-input]").forEach(input => {
+    input.addEventListener("change", async (e) => {
+      const id = input.dataset.photoInput;
+      const file = e.target.files[0];
+      if (!file) return;
+      const btn = scope.querySelector(`[data-photo-btn="${id}"]`);
+      const original = btn.textContent;
+      btn.textContent = "Processing...";
+      try {
+        const dataUrl = await resizeImageFile(file, 900, 0.6);
+        if (!state.items[id]) state.items[id] = { v: null, note: "", photos: [] };
+        if (!state.items[id].photos) state.items[id].photos = [];
+        state.items[id].photos.push(dataUrl);
+        persistDraft();
+        renderPhotos(id);
+      } catch (err) {
+        alert("Couldn't process that photo. Try again.");
+      }
+      btn.textContent = original;
+      input.value = "";
+    });
+  });
+}
+
+function renderPhotos(id) {
+  const container = document.querySelector(`[data-photo-thumbs="${id}"]`);
+  if (!container) return;
+  const photos = (state.items[id] && state.items[id].photos) || [];
+  container.innerHTML = photos.map((p, i) => `
+    <div class="photo-thumb">
+      <img src="${p}" data-view="1">
+      <button class="remove-photo" data-remove="${id}::${i}" type="button">×</button>
+    </div>
+  `).join("");
+  container.querySelectorAll("img").forEach(img => {
+    img.addEventListener("click", () => {
+      document.getElementById("photoModalImg").src = img.src;
+      document.getElementById("photoModal").classList.add("show");
+    });
+  });
+  container.querySelectorAll("[data-remove]").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const [pid, idx] = btn.dataset.remove.split("::");
+      state.items[pid].photos.splice(parseInt(idx, 10), 1);
+      persistDraft();
+      renderPhotos(pid);
+    });
+  });
+}
+
+function renderAllPhotos() {
+  CATEGORIES.forEach((cat, ci) => cat.items.forEach((_, ii) => renderPhotos(itemId(ci, ii))));
+}
+
+let state = { meta: {}, items: {}, timer: { elapsed: 0, running: false, startedAt: null } };
+let timerInterval = null;
+
+function renderState() {
+  document.querySelectorAll(".toggle-group").forEach(group => {
+    const id = group.dataset.id;
+    const entry = state.items[id];
+    group.querySelectorAll("button").forEach(btn => {
+      btn.classList.toggle("active", entry && entry.v === btn.dataset.v);
+    });
+  });
+  document.querySelectorAll(".note-input").forEach(ta => {
+    const id = ta.dataset.note;
+    const entry = state.items[id];
+    if (entry && ta.value !== entry.note) ta.value = entry.note || "";
+  });
+  CATEGORIES.forEach((cat, ci) => {
+    let marked = 0;
+    cat.items.forEach((_, ii) => { if (state.items[itemId(ci, ii)] && state.items[itemId(ci, ii)].v) marked++; });
+    const countEl = document.querySelector(`[data-count="${ci}"]`);
+    if (countEl) countEl.textContent = `${marked}/${cat.items.length} checked`;
+  });
+  updateScore();
+}
+
+function updateScore() {
+  let pass = 0, fail = 0, na = 0, criticalFails = 0, total = 0;
+  CATEGORIES.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      const entry = state.items[itemId(ci, ii)];
+      if (!entry || !entry.v) return;
+      total++;
+      if (entry.v === "pass") pass++;
+      else if (entry.v === "fail") { fail++; if (item.c) criticalFails++; }
+      else na++;
+    });
+  });
+  const scoreRing = document.getElementById("scoreRing");
+  const scoreBig = document.getElementById("scoreBig");
+  const scoreSmall = document.getElementById("scoreSmall");
+
+  const applicable = pass + fail;
+  if (applicable === 0) {
+    scoreRing.textContent = "--";
+    scoreRing.style.borderColor = "var(--line)";
+    scoreRing.style.color = "var(--ink-soft)";
+    scoreBig.textContent = "No steps checked yet";
+    scoreSmall.textContent = "Mark each step below as it's confirmed";
+    return;
+  }
+  const pct = Math.round((pass / applicable) * 100);
+  scoreRing.textContent = pct + "%";
+  let ringColor = "var(--pass)";
+  if (pct < 70 || criticalFails > 0) ringColor = "var(--fail)";
+  else if (pct < 90) ringColor = "#c98a2e";
+  scoreRing.style.borderColor = ringColor;
+  scoreRing.style.color = ringColor;
+
+  const totalItems = CATEGORIES.reduce((s, c) => s + c.items.length, 0);
+  scoreBig.textContent = `${pass} done / ${fail} missed` + (na ? ` / ${na} N/A` : "") + ` — ${total} of ${totalItems} steps checked`;
+  if (criticalFails > 0) {
+    scoreSmall.innerHTML = `<span class="crit-flag">${criticalFails} critical step${criticalFails > 1 ? 's' : ''} missed — needs immediate correction</span>`;
+  } else if (fail > 0) {
+    scoreSmall.textContent = `${fail} step${fail > 1 ? 's' : ''} missed — coach before next opening`;
+  } else {
+    scoreSmall.textContent = "Opening procedure followed cleanly so far";
+  }
+}
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60).toString().padStart(2, "0");
+  const s = Math.floor(sec % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function currentElapsed() {
+  let e = state.timer.elapsed;
+  if (state.timer.running && state.timer.startedAt) {
+    e += (Date.now() - state.timer.startedAt) / 1000;
+  }
+  return e;
+}
+
+function renderTimer() {
+  const elapsed = currentElapsed();
+  document.getElementById("timerDisplay").textContent = formatTime(elapsed);
+  const card = document.getElementById("timerCard");
+  card.classList.toggle("timer-over", elapsed > TARGET_SECONDS);
+  const btn = document.getElementById("timerBtn");
+  btn.textContent = state.timer.running ? "Stop" : (state.timer.elapsed > 0 ? "Resume" : "Start");
+  btn.classList.toggle("active", state.timer.running);
+}
+
+document.getElementById("timerBtn").addEventListener("click", () => {
+  if (state.timer.running) {
+    state.timer.elapsed = currentElapsed();
+    state.timer.running = false;
+    state.timer.startedAt = null;
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  } else {
+    state.timer.running = true;
+    state.timer.startedAt = Date.now();
+    timerInterval = setInterval(renderTimer, 1000);
+  }
+  renderTimer();
+  persistDraft();
+});
+
+function persistDraft() {
+  state.meta = {
+    storeName: document.getElementById("storeName").value,
+    auditor: document.getElementById("auditor").value,
+    auditDate: document.getElementById("auditDate").value,
+    venue: document.getElementById("venue").value,
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      state = parsed && parsed.items ? parsed : { meta: {}, items: {}, timer: { elapsed: 0, running: false, startedAt: null } };
+      if (!state.timer) state.timer = { elapsed: 0, running: false, startedAt: null };
+      if (state.timer.running) {
+        // resume interval if it was running when saved
+        timerInterval = setInterval(renderTimer, 1000);
+      }
+    }
+  } catch (e) { state = { meta: {}, items: {}, timer: { elapsed: 0, running: false, startedAt: null } }; }
+  document.getElementById("storeName").value = state.meta.storeName || "";
+  document.getElementById("auditor").value = state.meta.auditor || "";
+  document.getElementById("auditDate").value = state.meta.auditDate || new Date().toISOString().slice(0,10);
+  document.getElementById("venue").value = state.meta.venue || "endcap";
+}
+
+function getHistory() {
+  try { const raw = localStorage.getItem(HISTORY_KEY); return raw ? JSON.parse(raw) : []; }
+  catch (e) { return []; }
+}
+
+function renderHistory() {
+  const list = document.getElementById("historyList");
+  const history = getHistory();
+  if (history.length === 0) {
+    list.innerHTML = '<p class="empty-note">Saved audits will show up here.</p>';
+    return;
+  }
+  list.innerHTML = "";
+  history.slice().reverse().forEach((h, idx) => {
+    const realIdx = history.length - 1 - idx;
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.innerHTML = `
+      <div>
+        <div><strong>${h.meta.storeName || "Unnamed store"}</strong> — ${h.score}% · ${formatTime(h.elapsed || 0)}</div>
+        <div class="meta-line">${h.meta.auditDate || ""} · ${VENUE_LABELS[h.meta.venue] || ""} · ${h.meta.auditor || "no auditor listed"}${h.criticalFails ? ` · ${h.criticalFails} critical` : ""}</div>
+      </div>
+      <button class="load-btn" data-idx="${realIdx}">Load</button>
+    `;
+    list.appendChild(div);
+  });
+  list.querySelectorAll(".load-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const h = getHistory()[parseInt(btn.dataset.idx, 10)];
+      if (!h) return;
+      state = { meta: h.meta, items: h.items, timer: { elapsed: h.elapsed || 0, running: false, startedAt: null } };
+      document.getElementById("storeName").value = state.meta.storeName || "";
+      document.getElementById("auditor").value = state.meta.auditor || "";
+      document.getElementById("auditDate").value = state.meta.auditDate || "";
+      document.getElementById("venue").value = state.meta.venue || "endcap";
+      renderState();
+      renderTimer();
+      renderAllPhotos();
+      persistDraft();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  });
+}
+
+document.getElementById("saveBtn").addEventListener("click", () => {
+  if (state.timer.running) {
+    state.timer.elapsed = currentElapsed();
+    state.timer.running = false;
+    state.timer.startedAt = null;
+    if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+    renderTimer();
+  }
+  persistDraft();
+  let pass = 0, fail = 0, criticalFails = 0;
+  CATEGORIES.forEach((cat, ci) => {
+    cat.items.forEach((item, ii) => {
+      const entry = state.items[itemId(ci, ii)];
+      if (!entry || !entry.v) return;
+      if (entry.v === "pass") pass++;
+      else if (entry.v === "fail") { fail++; if (item.c) criticalFails++; }
+    });
+  });
+  const applicable = pass + fail;
+  const score = applicable ? Math.round((pass / applicable) * 100) : 0;
+  const history = getHistory();
+  history.push({
+    savedAt: new Date().toISOString(),
+    meta: { ...state.meta },
+    items: JSON.parse(JSON.stringify(state.items)),
+    elapsed: state.timer.elapsed,
+    score, criticalFails,
+  });
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
+  renderHistory();
+  const btn = document.getElementById("saveBtn");
+  const original = btn.textContent;
+  btn.textContent = "Saved ✓";
+  setTimeout(() => { btn.textContent = original; }, 1400);
+
+  submitToTeamLog(history[history.length - 1]);
+});
+
+// ---- Shared team log (GitHub via Cloudflare Worker) ----
+const WORKER_URL = "https://panda-audit-sync.YOUR-SUBDOMAIN.workers.dev";
+const AUDIT_TYPE = "boh-opening";
+
+async function submitToTeamLog(auditRecord) {
+  const statusEl = document.getElementById("syncStatus");
+  if (!WORKER_URL || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+    statusEl.textContent = "Saved on this device only — shared log isn't configured yet.";
+    return;
+  }
+  statusEl.textContent = "Submitting to team log...";
+  try {
+    const res = await fetch(WORKER_URL + "/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...auditRecord, auditType: AUDIT_TYPE }),
+    });
+    if (!res.ok) throw new Error("bad response");
+    statusEl.textContent = "✓ Submitted to team log";
+    loadTeamList();
+  } catch (err) {
+    statusEl.textContent = "Saved on this device — couldn't reach the team log (check connection).";
+  }
+}
+
+async function loadTeamList() {
+  const listEl = document.getElementById("teamList");
+  if (!WORKER_URL || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+    listEl.innerHTML = '<p class="empty-note">Shared log isn\'t configured yet — set WORKER_URL in this file.</p>';
+    return;
+  }
+  try {
+    const res = await fetch(WORKER_URL + "/list?type=" + AUDIT_TYPE);
+    const data = await res.json();
+    if (!data.ok || !data.audits.length) {
+      listEl.innerHTML = '<p class="empty-note">No team submissions yet.</p>';
+      return;
+    }
+    const sorted = data.audits.sort((a, b) => (b.savedAt || "").localeCompare(a.savedAt || ""));
+    listEl.innerHTML = sorted.map(h => `
+      <div class="history-item">
+        <div>
+          <div><strong>${h.meta.storeName || "Unnamed store"}</strong> — ${h.score}%</div>
+          <div class="meta-line">${h.meta.auditDate || ""} · ${h.meta.auditor || "no auditor listed"} · ${h.meta.venue || ""}</div>
+        </div>
+      </div>
+    `).join("");
+  } catch (err) {
+    listEl.innerHTML = '<p class="empty-note">Couldn\'t load team submissions right now.</p>';
+  }
+}
+document.getElementById("refreshTeamBtn").addEventListener("click", loadTeamList);
+loadTeamList();
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Clear all marks and reset the timer? This can't be undone unless you already saved it.")) return;
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+  state = { meta: state.meta, items: {}, timer: { elapsed: 0, running: false, startedAt: null } };
+  document.querySelectorAll(".note-input").forEach(ta => { ta.value = ""; });
+  renderState();
+  renderTimer();
+  renderAllPhotos();
+  persistDraft();
+});
+
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+document.getElementById("venue").addEventListener("change", persistDraft);
+document.getElementById("photoModal").addEventListener("click", () => {
+  document.getElementById("photoModal").classList.remove("show");
+});
+
+buildCategories();
+loadDraft();
+renderState();
+renderTimer();
+renderHistory();
+renderAllPhotos();
+</script>
+</body>
+</html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Operations Audit</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root {
+    --bg: #f6f5f2; --panel: #ffffff; --ink: #1c2321; --ink-soft: #5b645f; --line: #dcd9d1;
+    --accent: #c8102e; --accent-soft: #fbe6e8; --gold: #f2a900;
+    --pass: #2f7d4f; --pass-bg: #e6f3e9; --fail: #b0392a; --fail-bg: #fbe9e6;
+    --na: #8a8378; --na-bg: #efece5; --radius: 10px;
+    --font-body: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a; --panel: #1c2224; --ink: #eceae4; --ink-soft: #a8ada8; --line: #333b3a;
+    --accent: #ff6b70; --accent-soft: #3a1f22;
+    --pass: #6fbf8f; --pass-bg: #1f3128; --fail: #e08370; --fail-bg: #3a2320;
+    --na: #9a9a92; --na-bg: #2a2b26;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a; --panel: #1c2224; --ink: #eceae4; --ink-soft: #a8ada8; --line: #333b3a;
+      --accent: #ff6b70; --accent-soft: #3a1f22;
+      --pass: #6fbf8f; --pass-bg: #1f3128; --fail: #e08370; --fail-bg: #3a2320;
+      --na: #9a9a92; --na-bg: #2a2b26;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-ui); padding-bottom: 3rem; }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 1rem 1rem 2rem; }
+  .brand-bar {
+    background: var(--accent); color: #fff;
+    padding: calc(0.9rem + env(safe-area-inset-top, 0px)) 1rem 1.1rem;
+    border-bottom: 3px solid var(--gold);
+  }
+  .brand-bar-inner { max-width: 720px; margin: 0 auto; }
+  .brand-kicker {
+    font-size: 0.72rem; color: var(--gold); font-weight: 700; letter-spacing: 0.06em;
+    margin-bottom: 0.3rem; text-transform: uppercase;
+  }
+  .brand-title {
+    font-family: var(--font-body); font-size: 1.45rem; font-weight: 700; line-height: 1.2;
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  .sub { color: rgba(255,255,255,0.88); font-size: 0.86rem; margin: 0.35rem 0 0; max-width: 48ch; }
+
+  .meta-card {
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1rem; margin: 1.1rem 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;
+  }
+  .field label { display: block; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 0.3rem; }
+  .field input { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line);
+    color: var(--ink); font-size: 0.95rem; padding: 0.3rem 0.1rem; font-family: var(--font-ui); }
+  .field input:focus { outline: none; border-bottom-color: var(--accent); }
+
+  .score-bar {
+    display: flex; align-items: center; gap: 1rem; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 0.9rem 1rem; margin-bottom: 1.1rem;
+    position: sticky; top: 0.5rem; z-index: 5; backdrop-filter: blur(6px);
+  }
+  .score-ring { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem; flex-shrink: 0; border: 3px solid var(--line); }
+  .score-text { flex: 1; min-width: 0; }
+  .score-text .big { font-size: 0.92rem; font-weight: 600; }
+  .score-text .small { font-size: 0.76rem; color: var(--ink-soft); }
+
+  .category { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    margin-bottom: 0.85rem; overflow: hidden; }
+  .category-head { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1rem;
+    cursor: pointer; user-select: none; }
+  .category-head h2 { font-family: var(--font-body); font-size: 1.02rem; font-weight: 600; margin: 0; }
+  .category-head .count { font-size: 0.76rem; color: var(--ink-soft); white-space: nowrap; margin-left: 0.75rem; }
+  .chev { transition: transform 0.15s ease; color: var(--ink-soft); flex-shrink: 0; margin-left: 0.5rem; }
+  .category.open .chev { transform: rotate(90deg); }
+  .category-body { display: none; border-top: 1px solid var(--line); }
+  .category.open .category-body { display: block; }
+
+  .item { padding: 0.85rem 1rem; border-bottom: 1px solid var(--line); }
+  .item:last-child { border-bottom: none; }
+  .item-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; }
+  .item-label { font-size: 0.9rem; line-height: 1.4; flex: 1; }
+  .toggle-group { display: flex; gap: 0.3rem; flex-shrink: 0; }
+  .toggle-group button { border: 1px solid var(--line); background: transparent; color: var(--ink-soft);
+    font-size: 0.72rem; font-weight: 700; padding: 0.35rem 0.55rem; border-radius: 6px; cursor: pointer;
+    font-family: var(--font-ui); }
+  .toggle-group button.active[data-v="pass"] { background: var(--pass-bg); color: var(--pass); border-color: var(--pass); }
+  .toggle-group button.active[data-v="fail"] { background: var(--fail-bg); color: var(--fail); border-color: var(--fail); }
+  .toggle-group button.active[data-v="na"] { background: var(--na-bg); color: var(--na); border-color: var(--na); }
+  .note-label { margin-top: 0.6rem; font-size: 0.72rem; color: var(--ink-soft); margin-bottom: 0.25rem; }
+  .note-input { width: 100%; background: var(--accent-soft); border: 1px solid transparent;
+    border-radius: 6px; padding: 0.45rem 0.6rem; font-size: 0.85rem; color: var(--ink); font-family: var(--font-ui); }
+  .note-input:focus { outline: none; border-color: var(--accent); }
+
+  .photo-row { margin-top: 0.55rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+  .photo-btn { border: 1px dashed var(--line); background: transparent; color: var(--ink-soft); font-size: 0.74rem;
+    padding: 0.4rem 0.65rem; border-radius: 6px; cursor: pointer; font-family: var(--font-ui); }
+  .photo-thumbs { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+  .photo-thumb { position: relative; width: 54px; height: 54px; border-radius: 6px; overflow: hidden;
+    border: 1px solid var(--line); flex-shrink: 0; }
+  .photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+  .photo-thumb .remove-photo { position: absolute; top: 0; right: 0; background: rgba(0,0,0,0.6); color: #fff;
+    border: none; font-size: 0.65rem; width: 18px; height: 18px; line-height: 18px; text-align: center;
+    cursor: pointer; padding: 0; border-bottom-left-radius: 6px; }
+  .photo-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center;
+    justify-content: center; z-index: 50; padding: 1.2rem; }
+  .photo-modal.show { display: flex; }
+  .photo-modal img { max-width: 100%; max-height: 100%; border-radius: 8px; }
+
+  .actions { display: flex; gap: 0.6rem; margin-top: 1.4rem; flex-wrap: wrap; }
+  .btn { flex: 1; min-width: 130px; text-align: center; padding: 0.75rem 1rem; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink); font-size: 0.88rem;
+    font-weight: 600; cursor: pointer; font-family: var(--font-ui); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.danger { color: var(--fail); border-color: var(--fail); }
+
+  .export-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1rem; margin-top: 1.5rem; }
+  .export-card h3 { font-family: var(--font-body); font-size: 1rem; margin: 0 0 0.7rem; }
+  .export-row { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: flex-end; }
+  .export-row .field { flex: 1; min-width: 130px; }
+  .export-row .field input { border: 1px solid var(--line); border-radius: 6px; padding: 0.45rem 0.5rem; }
+  .export-note { font-size: 0.76rem; color: var(--ink-soft); margin-top: 0.6rem; }
+
+  .history-panel { margin-top: 1.5rem; }
+  .history-panel h3 { font-family: var(--font-body); font-size: 1rem; margin-bottom: 0.6rem; }
+  .history-item { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 0.7rem 0.9rem;
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.85rem;
+    gap: 0.5rem; }
+  .history-item .meta-line { color: var(--ink-soft); font-size: 0.78rem; }
+  .history-item .load-btn { background: none; border: 1px solid var(--line); border-radius: 6px;
+    padding: 0.3rem 0.6rem; font-size: 0.76rem; cursor: pointer; color: var(--accent); font-weight: 600; }
+  .empty-note { color: var(--ink-soft); font-size: 0.85rem; font-style: italic; }
+
+  @media (max-width: 420px) {
+    .meta-card { grid-template-columns: 1fr; }
+    .item-row { flex-direction: column; }
+    .toggle-group { align-self: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="brand-bar">
+  <div class="brand-bar-inner">
+    <div class="brand-kicker">Field Audit Tool</div>
+    <div class="brand-title">🐼 Operations Audit</div>
+    <p class="sub">Opening through GEM — run the full twice-per-period compliance walk in one place.</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="meta-card">
+    <div class="field"><label for="storeName">Store</label><input id="storeName" type="text" placeholder="e.g. Store #4471"></div>
+    <div class="field"><label for="auditor">Auditor</label><input id="auditor" type="text" placeholder="Your name"></div>
+    <div class="field"><label for="auditDate">Date</label><input id="auditDate" type="date"></div>
+    <div class="field"><label for="gemScore">GEM score (if known)</label><input id="gemScore" type="text" placeholder="e.g. 92%"></div>
+  </div>
+
+  <div class="score-bar">
+    <div class="score-ring" id="scoreRing">--</div>
+    <div class="score-text">
+      <div class="big" id="scoreBig">No items answered yet</div>
+      <div class="small" id="scoreSmall">Yes-rate across everything marked so far</div>
+    </div>
+  </div>
+
+  <div id="categories"></div>
+
+  <div class="actions">
+    <button class="btn primary" id="saveBtn">Save this audit</button>
+    <button class="btn" id="printBtn">Print</button>
+    <button class="btn danger" id="resetBtn">Clear form</button>
+  </div>
+
+  <div class="export-card">
+    <h3>Export to Excel</h3>
+    <div class="export-row">
+      <div class="field"><label for="fromDate">From date</label><input id="fromDate" type="date"></div>
+      <div class="field"><label for="toDate">To date</label><input id="toDate" type="date"></div>
+      <button class="btn primary" id="exportBtn" style="flex: 0 0 auto; min-width: 110px;">Export</button>
+    </div>
+    <p class="export-note">Pulls every saved audit in that date range into one workbook — a Summary tab (one row per audit) and a Details tab (one row per question, with any notes and a photo count). Leave both dates blank to export everything saved.</p>
+  </div>
+
+  <p class="sync-status" id="syncStatus" style="font-size:0.8rem;color:var(--ink-soft);margin-top:0.5rem;"></p>
+
+  <div class="history-panel">
+    <h3>Past audits</h3>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="history-panel" id="teamPanel">
+    <h3>Team submissions <button class="load-btn" id="refreshTeamBtn" style="margin-left:0.5rem;">Refresh</button></h3>
+    <div id="teamList"><p class="empty-note">Loading shared submissions…</p></div>
+  </div>
+</div>
+
+<div class="photo-modal" id="photoModal"><img id="photoModalImg" src="" alt="Photo preview"></div>
+
+<script>
+const CATEGORIES = [
+  { name: "Opening Audit", items: [
+    "Did the store open on time and meet all opening readiness standards?",
+    "Were all required opening procedures completed before serving guests?",
+    "Was cooking by batch followed during opening?",
+  ]},
+  { name: "Slow-Time Audit (1:30 PM)", items: [
+    "Is the team following proper batch cooking and steam table management?",
+    "Is food being prepared based on guest demand to minimize waste?",
+    "Are associates staying productive during slow periods?",
+  ]},
+  { name: "Rush-Hour Audit (7:00 PM)", items: [
+    "Is the team consistently following cooking-by-batch standards?",
+    "Is food sitting or waiting unnecessarily?",
+    "Is the drive-thru steam table properly managed?",
+    "Is the dining room maintained and cleaned throughout rush hours?",
+  ]},
+  { name: "Saturday Inventory Audit", items: [
+    "Did the team start counting inventory at the appropriate time?",
+    "Was inventory counted while the store was still operating?",
+    "Were actual physical counts performed accurately?",
+    "Were any inventory adjustments made without proper verification or approval?",
+  ]},
+  { name: "Pre-Closing Audit", items: [
+    "Did the team begin any closing procedures before the approved time?",
+    "Were any cleaning activities performed that could compromise food safety or guest experience?",
+  ]},
+  { name: "Food Safety Audit", items: [
+    "Were the previously identified medium violations corrected?",
+    "Are associates consistently following food safety procedures?",
+  ]},
+  { name: "Shift Change Audit", items: [
+    "Was there unnecessary labor overlap during shift transitions?",
+    "Were associates assigned productive tasks during overlapping shifts?",
+  ]},
+  { name: "GEM Performance", items: [
+    "Is the store meeting GEM?",
+  ]},
+];
+
+const STORAGE_KEY = "ops_audit_draft";
+const HISTORY_KEY = "ops_audit_history";
+function itemId(ci, ii) { return `c${ci}_i${ii}`; }
+let state = { meta: {}, items: {} };
+
+function buildCategories() {
+  const container = document.getElementById("categories");
+  container.innerHTML = "";
+  CATEGORIES.forEach((cat, ci) => {
+    const catEl = document.createElement("div");
+    catEl.className = "category" + (ci === 0 ? " open" : "");
+    const head = document.createElement("div");
+    head.className = "category-head";
+    head.innerHTML = `<h2>${cat.name}</h2><div style="display:flex;align-items:center;">
+      <span class="count" data-count="${ci}">0/${cat.items.length} answered</span><span class="chev">&#8250;</span></div>`;
+    head.addEventListener("click", () => catEl.classList.toggle("open"));
+    const body = document.createElement("div");
+    body.className = "category-body";
+    cat.items.forEach((text, ii) => {
+      const id = itemId(ci, ii);
+      const itemEl = document.createElement("div");
+      itemEl.className = "item";
+      itemEl.innerHTML = `
+        <div class="item-row">
+          <div class="item-label">${text}</div>
+          <div class="toggle-group" data-id="${id}">
+            <button data-v="pass" type="button">YES</button>
+            <button data-v="fail" type="button">NO</button>
+            <button data-v="na" type="button">N/A</button>
+          </div>
+        </div>
+        <div class="note-label">Comment</div>
+        <textarea class="note-input" data-note="${id}" rows="2" placeholder="Add a comment for this question..."></textarea>
+        <div class="photo-row">
+          <button class="photo-btn" type="button" data-photo-btn="${id}">📷 Add photo</button>
+          <input type="file" accept="image/*" capture="environment" style="display:none" data-photo-input="${id}">
+          <div class="photo-thumbs" data-photo-thumbs="${id}"></div>
+        </div>`;
+      body.appendChild(itemEl);
+    });
+    catEl.appendChild(head); catEl.appendChild(body); container.appendChild(catEl);
+  });
+
+  container.querySelectorAll(".toggle-group").forEach(group => {
+    group.querySelectorAll("button").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = group.dataset.id, v = btn.dataset.v, current = state.items[id];
+        if (current && current.v === v) delete state.items[id];
+        else state.items[id] = { v, note: (current && current.note) || "", photos: (current && current.photos) || [] };
+        renderState(); persistDraft();
+      });
+    });
+  });
+  container.querySelectorAll(".note-input").forEach(ta => {
+    ta.addEventListener("input", () => {
+      const id = ta.dataset.note;
+      if (!state.items[id]) state.items[id] = { v: null, note: "", photos: [] };
+      state.items[id].note = ta.value; persistDraft();
+    });
+  });
+  wirePhotoControls(container);
+}
+
+function resizeImageFile(file, maxDim, quality) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("read failed"));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("decode failed"));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > height && width > maxDim) { height = Math.round(height * (maxDim / width)); width = maxDim; }
+        else if (height > maxDim) { width = Math.round(width * (maxDim / height)); height = maxDim; }
+        const canvas = document.createElement("canvas");
+        canvas.width = width; canvas.height = height;
+        canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function wirePhotoControls(scope) {
+  scope.querySelectorAll("[data-photo-btn]").forEach(btn => {
+    btn.addEventListener("click", (e) => { e.stopPropagation();
+      scope.querySelector(`[data-photo-input="${btn.dataset.photoBtn}"]`).click(); });
+  });
+  scope.querySelectorAll("[data-photo-input]").forEach(input => {
+    input.addEventListener("change", async (e) => {
+      const id = input.dataset.photoInput, file = e.target.files[0];
+      if (!file) return;
+      const btn = scope.querySelector(`[data-photo-btn="${id}"]`), original = btn.textContent;
+      btn.textContent = "Processing...";
+      try {
+        const dataUrl = await resizeImageFile(file, 900, 0.6);
+        if (!state.items[id]) state.items[id] = { v: null, note: "", photos: [] };
+        if (!state.items[id].photos) state.items[id].photos = [];
+        state.items[id].photos.push(dataUrl);
+        persistDraft(); renderPhotos(id);
+      } catch (err) { alert("Couldn't process that photo. Try again."); }
+      btn.textContent = original; input.value = "";
+    });
+  });
+}
+function renderPhotos(id) {
+  const container = document.querySelector(`[data-photo-thumbs="${id}"]`);
+  if (!container) return;
+  const photos = (state.items[id] && state.items[id].photos) || [];
+  container.innerHTML = photos.map((p, i) => `<div class="photo-thumb"><img src="${p}">
+    <button class="remove-photo" data-remove="${id}::${i}" type="button">×</button></div>`).join("");
+  container.querySelectorAll("img").forEach(img => img.addEventListener("click", () => {
+    document.getElementById("photoModalImg").src = img.src;
+    document.getElementById("photoModal").classList.add("show");
+  }));
+  container.querySelectorAll("[data-remove]").forEach(btn => btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const [pid, idx] = btn.dataset.remove.split("::");
+    state.items[pid].photos.splice(parseInt(idx, 10), 1);
+    persistDraft(); renderPhotos(pid);
+  }));
+}
+function renderAllPhotos() { CATEGORIES.forEach((cat, ci) => cat.items.forEach((_, ii) => renderPhotos(itemId(ci, ii)))); }
+
+function renderState() {
+  document.querySelectorAll(".toggle-group").forEach(group => {
+    const entry = state.items[group.dataset.id];
+    group.querySelectorAll("button").forEach(btn => btn.classList.toggle("active", entry && entry.v === btn.dataset.v));
+  });
+  document.querySelectorAll(".note-input").forEach(ta => {
+    const entry = state.items[ta.dataset.note];
+    if (entry && ta.value !== entry.note) ta.value = entry.note || "";
+  });
+  CATEGORIES.forEach((cat, ci) => {
+    let marked = 0;
+    cat.items.forEach((_, ii) => { if (state.items[itemId(ci, ii)] && state.items[itemId(ci, ii)].v) marked++; });
+    const el = document.querySelector(`[data-count="${ci}"]`);
+    if (el) el.textContent = `${marked}/${cat.items.length} answered`;
+  });
+  updateScore();
+}
+function tallyState(items) {
+  let yes = 0, no = 0, na = 0;
+  CATEGORIES.forEach((cat, ci) => cat.items.forEach((_, ii) => {
+    const e = items[itemId(ci, ii)];
+    if (!e || !e.v) return;
+    if (e.v === "pass") yes++; else if (e.v === "fail") no++; else na++;
+  }));
+  return { yes, no, na };
+}
+function updateScore() {
+  const { yes, no, na } = tallyState(state.items);
+  const ring = document.getElementById("scoreRing"), big = document.getElementById("scoreBig"), small = document.getElementById("scoreSmall");
+  const applicable = yes + no;
+  if (applicable === 0) {
+    ring.textContent = "--"; ring.style.borderColor = "var(--line)"; ring.style.color = "var(--ink-soft)";
+    big.textContent = "No items answered yet"; small.textContent = "Yes-rate across everything marked so far";
+    return;
+  }
+  const pct = Math.round((yes / applicable) * 100);
+  ring.textContent = pct + "%";
+  const color = pct < 70 ? "var(--fail)" : pct < 90 ? "#c98a2e" : "var(--pass)";
+  ring.style.borderColor = color; ring.style.color = color;
+  const total = CATEGORIES.reduce((s, c) => s + c.items.length, 0);
+  big.textContent = `${yes} yes / ${no} no` + (na ? ` / ${na} N/A` : "") + ` — ${yes+no+na} of ${total} answered`;
+  small.textContent = no > 0 ? `${no} item${no > 1 ? 's' : ''} flagged "no" — review before next audit` : "Clean pass so far";
+}
+
+function persistDraft() {
+  state.meta = {
+    storeName: document.getElementById("storeName").value,
+    auditor: document.getElementById("auditor").value,
+    auditDate: document.getElementById("auditDate").value,
+    gemScore: document.getElementById("gemScore").value,
+  };
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+}
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) { const p = JSON.parse(raw); state = p && p.items ? p : { meta: {}, items: {} }; }
+  } catch (e) { state = { meta: {}, items: {} }; }
+  document.getElementById("storeName").value = state.meta.storeName || "";
+  document.getElementById("auditor").value = state.meta.auditor || "";
+  document.getElementById("auditDate").value = state.meta.auditDate || new Date().toISOString().slice(0,10);
+  document.getElementById("gemScore").value = state.meta.gemScore || "";
+}
+function getHistory() {
+  try { const raw = localStorage.getItem(HISTORY_KEY); return raw ? JSON.parse(raw) : []; } catch (e) { return []; }
+}
+function renderHistory() {
+  const list = document.getElementById("historyList"), history = getHistory();
+  if (history.length === 0) { list.innerHTML = '<p class="empty-note">Saved audits will show up here.</p>'; return; }
+  list.innerHTML = "";
+  history.slice().reverse().forEach((h, idx) => {
+    const realIdx = history.length - 1 - idx;
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.innerHTML = `<div><div><strong>${h.meta.storeName || "Unnamed store"}</strong> — ${h.score}%</div>
+      <div class="meta-line">${h.meta.auditDate || ""} · ${h.meta.auditor || "no auditor listed"} · ${h.yes} yes / ${h.no} no</div></div>
+      <button class="load-btn" data-idx="${realIdx}">Load</button>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll(".load-btn").forEach(btn => btn.addEventListener("click", () => {
+    const h = getHistory()[parseInt(btn.dataset.idx, 10)];
+    if (!h) return;
+    state = { meta: h.meta, items: h.items };
+    document.getElementById("storeName").value = state.meta.storeName || "";
+    document.getElementById("auditor").value = state.meta.auditor || "";
+    document.getElementById("auditDate").value = state.meta.auditDate || "";
+    document.getElementById("gemScore").value = state.meta.gemScore || "";
+    renderState(); renderAllPhotos(); persistDraft();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }));
+}
+
+document.getElementById("saveBtn").addEventListener("click", () => {
+  persistDraft();
+  const { yes, no, na } = tallyState(state.items);
+  const applicable = yes + no;
+  const score = applicable ? Math.round((yes / applicable) * 100) : 0;
+  const history = getHistory();
+  history.push({ savedAt: new Date().toISOString(), meta: { ...state.meta },
+    items: JSON.parse(JSON.stringify(state.items)), yes, no, na, score });
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); } catch (e) {}
+  renderHistory();
+  const btn = document.getElementById("saveBtn"), original = btn.textContent;
+  btn.textContent = "Saved ✓"; setTimeout(() => { btn.textContent = original; }, 1400);
+  submitToTeamLog(history[history.length - 1]);
+});
+
+// ---- Shared team log (GitHub via Cloudflare Worker) ----
+const WORKER_URL = "https://panda-audit-sync.YOUR-SUBDOMAIN.workers.dev";
+const AUDIT_TYPE = "operations";
+
+async function submitToTeamLog(auditRecord) {
+  const statusEl = document.getElementById("syncStatus");
+  if (!WORKER_URL || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+    statusEl.textContent = "Saved on this device only — shared log isn't configured yet.";
+    return;
+  }
+  statusEl.textContent = "Submitting to team log...";
+  try {
+    const res = await fetch(WORKER_URL + "/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...auditRecord, auditType: AUDIT_TYPE }),
+    });
+    if (!res.ok) throw new Error("bad response");
+    statusEl.textContent = "✓ Submitted to team log";
+    loadTeamList();
+  } catch (err) {
+    statusEl.textContent = "Saved on this device — couldn't reach the team log (check connection).";
+  }
+}
+
+async function loadTeamList() {
+  const listEl = document.getElementById("teamList");
+  if (!WORKER_URL || WORKER_URL.includes("YOUR-SUBDOMAIN")) {
+    listEl.innerHTML = '<p class="empty-note">Shared log isn\'t configured yet — set WORKER_URL in this file.</p>';
+    return;
+  }
+  try {
+    const res = await fetch(WORKER_URL + "/list?type=" + AUDIT_TYPE);
+    const data = await res.json();
+    if (!data.ok || !data.audits.length) {
+      listEl.innerHTML = '<p class="empty-note">No team submissions yet.</p>';
+      return;
+    }
+    const sorted = data.audits.sort((a, b) => (b.savedAt || "").localeCompare(a.savedAt || ""));
+    listEl.innerHTML = sorted.map(h => `
+      <div class="history-item">
+        <div>
+          <div><strong>${h.meta.storeName || "Unnamed store"}</strong> — ${h.score}%</div>
+          <div class="meta-line">${h.meta.auditDate || ""} · ${h.meta.auditor || "no auditor listed"}</div>
+        </div>
+      </div>
+    `).join("");
+  } catch (err) {
+    listEl.innerHTML = '<p class="empty-note">Couldn\'t load team submissions right now.</p>';
+  }
+}
+document.getElementById("refreshTeamBtn").addEventListener("click", loadTeamList);
+loadTeamList();
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Clear all answers on this audit? This can't be undone unless you already saved it.")) return;
+  state = { meta: state.meta, items: {} };
+  document.querySelectorAll(".note-input").forEach(ta => { ta.value = ""; });
+  renderState(); renderAllPhotos(); persistDraft();
+});
+document.getElementById("printBtn").addEventListener("click", () => window.print());
+document.getElementById("photoModal").addEventListener("click", () => document.getElementById("photoModal").classList.remove("show"));
+
+document.getElementById("exportBtn").addEventListener("click", () => {
+  const fromDate = document.getElementById("fromDate").value;
+  const toDate = document.getElementById("toDate").value;
+  const history = getHistory().filter(h => {
+    const d = h.meta.auditDate;
+    if (!d) return false;
+    if (fromDate && d < fromDate) return false;
+    if (toDate && d > toDate) return false;
+    return true;
+  });
+  if (history.length === 0) { alert("No saved audits found in that date range."); return; }
+  if (typeof XLSX === "undefined") { alert("Excel export library didn't load — check your connection and try again."); return; }
+
+  const summaryRows = history.map(h => ({
+    Date: h.meta.auditDate || "", Store: h.meta.storeName || "", Auditor: h.meta.auditor || "",
+    "GEM Score": h.meta.gemScore || "", Yes: h.yes, No: h.no, "N/A": h.na, "Yes Rate": h.score + "%",
+    "Saved At": h.savedAt,
+  }));
+  const detailRows = [];
+  history.forEach(h => {
+    CATEGORIES.forEach((cat, ci) => cat.items.forEach((text, ii) => {
+      const entry = h.items[itemId(ci, ii)];
+      if (!entry || !entry.v) return;
+      detailRows.push({
+        Date: h.meta.auditDate || "", Store: h.meta.storeName || "", Category: cat.name, Question: text,
+        Answer: entry.v === "pass" ? "Yes" : entry.v === "fail" ? "No" : "N/A",
+        Note: entry.note || "", Photos: (entry.photos && entry.photos.length) || 0,
+      });
+    }));
+  });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(summaryRows), "Summary");
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(detailRows), "Details");
+  const label = (fromDate || "all") + "_to_" + (toDate || "all");
+  XLSX.writeFile(wb, `Operations_Audit_${label}.xlsx`);
+});
+
+buildCategories();
+loadDraft();
+renderState();
+renderHistory();
+renderAllPhotos();
+</script>
+</body>
+</html>
